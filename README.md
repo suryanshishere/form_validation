@@ -1,1 +1,1 @@
-A simple react based form validation setup.
+A simple react-typescript-tailwind based form validation setup.
