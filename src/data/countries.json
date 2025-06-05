@@ -1,0 +1,52 @@
+[
+  {
+    "name": "India",
+    "code": "+91",
+    "cities": ["Delhi", "Mumbai", "Bangalore", "Hyderabad", "Kolkata"]
+  },
+  {
+    "name": "USA",
+    "code": "+1",
+    "cities": ["New York", "Los Angeles", "Chicago", "Houston", "San Francisco"]
+  },
+  {
+    "name": "UK",
+    "code": "+44",
+    "cities": ["London", "Manchester", "Birmingham", "Liverpool", "Leeds"]
+  },
+  {
+    "name": "Germany",
+    "code": "+49",
+    "cities": ["Berlin", "Munich", "Frankfurt", "Hamburg", "Cologne"]
+  },
+  {
+    "name": "France",
+    "code": "+33",
+    "cities": ["Paris", "Lyon", "Marseille", "Nice", "Toulouse"]
+  },
+  {
+    "name": "Australia",
+    "code": "+61",
+    "cities": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"]
+  },
+  {
+    "name": "Canada",
+    "code": "+1-CA",
+    "cities": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa"]
+  },
+  {
+    "name": "Japan",
+    "code": "+81",
+    "cities": ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Nagoya"]
+  },
+  {
+    "name": "China",
+    "code": "+86",
+    "cities": ["Beijing", "Shanghai", "Guangzhou", "Shenzhen", "Chengdu"]
+  },
+  {
+    "name": "Brazil",
+    "code": "+55",
+    "cities": ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza"]
+  }
+]
