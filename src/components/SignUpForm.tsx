@@ -1,127 +1,114 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import InputField from "../shared/form/InputField";
-import SelectField, { SelectOption } from "../shared/form/SelectField";
-import PasswordField from "../shared/form/PasswordField";
-import { validateField } from "../shared/utils/validators";
-import rawCountriesJson from "../data/countries.json";
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import InputField from '../shared/form/InputField'
+import SelectField, { SelectOption } from '../shared/form/SelectField'
+import PasswordField from '../shared/form/PasswordField'
+import { validateField, FormState } from '../shared/utils/validators'
+import rawCountriesJson from '../data/countries.json'
 
 interface CountryItem {
-  name: string;
-  code: string;
-  cities: string[];
+  name: string
+  code: string
+  nationalNumberLength: number
+  cities: string[]
 }
 
-const CountriesData: CountryItem[] = rawCountriesJson as any;
-
-interface FormState {
-  firstName: string;
-  lastName: string;
-  username: string;
-  email: string;
-  password: string;
-  showPassword: boolean;
-  countryCode: string;
-  phone: string;
-  country: string;
-  city: string;
-  pan: string;
-  aadhar: string;
-}
+const CountriesData: CountryItem[] = rawCountriesJson as any
 
 const SignUpForm: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const [form, setForm] = useState<FormState>({
-    firstName: "",
-    lastName: "",
-    username: "",
-    email: "",
-    password: "",
+    firstName: '',
+    lastName: '',
+    username: '',
+    email: '',
+    password: '',
     showPassword: false,
-    countryCode: "",
-    phone: "",
-    country: "",
-    city: "",
-    pan: "",
-    aadhar: ""
-  });
+    countryCode: '',
+    phone: '',
+    country: '',
+    city: '',
+    pan: '',
+    aadhar: ''
+  })
 
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+  const [errors, setErrors] = useState<{ [K in keyof FormState]?: string }>({})
+  const [touched, setTouched] = useState<{ [K in keyof FormState]?: boolean }>({})
 
   const isValid =
-    Object.values(errors).every((e) => e === "") &&
-    Object.entries(form)
-      .filter(([key]) => key !== "showPassword")
-      .every(([_, val]) => val !== "");
+    Object.values(errors).every(e => !e) &&
+    (Object.entries(form) as [keyof FormState, any][])
+      .filter(([k]) => k !== 'showPassword')
+      .every(([, v]) => v !== '')
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value, type, checked } = e.target as HTMLInputElement;
-    const val = type === "checkbox" ? checked : value;
-    setForm((prev) => ({ ...prev, [name]: val }));
+    const { name, value, type, checked } = e.target as HTMLInputElement
+    const val = type === 'checkbox' ? checked : value
+    setForm(prev => ({ ...prev, [name]: val }))
 
-    if (touched[name]) {
-      const error = validateField(name, typeof val === "string" ? val : "");
-      setErrors((prev) => ({ ...prev, [name]: error }));
+    if (touched[name as keyof FormState]) {
+      const error = validateField(
+        name as keyof FormState,
+        typeof val === 'string' ? val : '',
+        { ...form, [name]: val }
+      )
+      setErrors(prev => ({ ...prev, [name]: error }))
     }
-  };
+  }
 
   const handleBlur = (
     e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-    const error = validateField(name, value);
-    setErrors((prev) => ({ ...prev, [name]: error }));
-  };
+    const { name, value } = e.target
+    setTouched(prev => ({ ...prev, [name]: true }))
+    const error = validateField(
+      name as keyof FormState,
+      value,
+      form
+    )
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newErrors: { [key: string]: string } = {};
-    for (const [name, value] of Object.entries(form)) {
-      if (name !== "showPassword") {
-        newErrors[name] = validateField(
-          name,
-          typeof value === "string" ? value : ""
-        );
-      }
+    e.preventDefault()
+    const newErrors: { [K in keyof FormState]?: string } = {}
+    for (const key of Object.keys(form) as (keyof FormState)[]) {
+      if (key === 'showPassword') continue
+      newErrors[key] = validateField(key, form[key] as string, form)
     }
-    setErrors(newErrors);
+    setErrors(newErrors)
     setTouched(
-      Object.keys(form).reduce((acc, key) => ({ ...acc, [key]: true }), {})
-    );
-    if (Object.values(newErrors).every((e) => e === "")) {
-      navigate("/success", { state: form });
+      Object.keys(form).reduce((acc, k) => ({ ...acc, [k]: true }), {})
+    )
+    if (Object.values(newErrors).every(e => !e)) {
+      navigate('/success', { state: form })
     }
-  };
+  }
 
-  const codeOptions: SelectOption[] = CountriesData.map((c) => ({
+  const codeOptions: SelectOption[] = CountriesData.map(c => ({
     label: `${c.name} (${c.code})`,
     value: c.code
-  }));
-
-  const countryOptions: SelectOption[] = CountriesData.map((c) => ({
+  }))
+  const countryOptions: SelectOption[] = CountriesData.map(c => ({
     label: c.name,
-    value: c.code
-  }));
-
-  const selectedCountryObj = CountriesData.find(
-    (c) => c.code === form.country
-  );
-  const cityOptions: SelectOption[] = selectedCountryObj
-    ? selectedCountryObj.cities.map((cityName) => ({
-        label: cityName,
-        value: cityName
+    value: c.name
+  }))
+  const selectedCountry = CountriesData.find(c => c.name === form.country)
+  const cityOptions: SelectOption[] = selectedCountry
+    ? selectedCountry.cities.map(city => ({
+        label: city,
+        value: city
       }))
-    : [];
+    : []
 
   return (
     <section className="bg-white shadow rounded-lg p-6">
-      <h1 className="text-2xl font-bold text-center font-semibold mb-10">Sign Up</h1>
+      <h1 className="text-2xl font-bold text-center mb-10">Sign Up</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Name fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField
             label="First Name"
@@ -141,6 +128,7 @@ const SignUpForm: React.FC = () => {
           />
         </div>
 
+        {/* Username, Email, Password */}
         <InputField
           label="Username"
           name="username"
@@ -157,18 +145,18 @@ const SignUpForm: React.FC = () => {
           onBlur={handleBlur}
           error={errors.email}
         />
-
         <PasswordField
           value={form.password}
           show={form.showPassword}
-          error={errors.password}
           onToggle={() =>
-            setForm((prev) => ({ ...prev, showPassword: !prev.showPassword }))
+            setForm(prev => ({ ...prev, showPassword: !prev.showPassword }))
           }
           onChange={handleChange}
           onBlur={handleBlur}
+          error={errors.password}
         />
 
+        {/* Phone */}
         <div className="grid grid-cols-3 gap-4 items-end">
           <SelectField
             label="Code"
@@ -191,6 +179,7 @@ const SignUpForm: React.FC = () => {
           </div>
         </div>
 
+        {/* Country & City */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <SelectField
             label="Country"
@@ -212,6 +201,7 @@ const SignUpForm: React.FC = () => {
           />
         </div>
 
+        {/* PAN & Aadhar */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField
             label="PAN No."
@@ -231,6 +221,7 @@ const SignUpForm: React.FC = () => {
           />
         </div>
 
+        {/* Submit */}
         <div className="text-right pt-4">
           <button
             type="submit"
@@ -242,7 +233,7 @@ const SignUpForm: React.FC = () => {
         </div>
       </form>
     </section>
-  );
-};
+  )
+}
 
-export default SignUpForm;
+export default SignUpForm
